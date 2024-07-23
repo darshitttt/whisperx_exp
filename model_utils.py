@@ -92,6 +92,9 @@ class MLModelManager:
         '''
         Save classification ML models to the specified path.
         '''
+        # Here we can still add more params, e.g. scaler and label encoder saving.
+        # Also we can generate a config file to load models in the future.
+
         if not os.path.exists(path):
             os.makedirs(path)
         for name, model in self.models.items():
