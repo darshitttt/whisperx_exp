@@ -1,4 +1,4 @@
-audio_file,annotation_file,label
+file_path,annotation_file,label
 ../audioData/VAD_Kaggle/Data/Audio/Female/PTDB-TUG/mic_F01_sa2.wav,../audioData/VAD_Kaggle/Data/Annotation/Female/PTDB-TUG/mic_F01_sa2.TextGrid,Female
 ../audioData/VAD_Kaggle/Data/Audio/Female/PTDB-TUG/mic_F01_si454.wav,../audioData/VAD_Kaggle/Data/Annotation/Female/PTDB-TUG/mic_F01_si454.TextGrid,Female
 ../audioData/VAD_Kaggle/Data/Audio/Female/PTDB-TUG/mic_F01_si473.wav,../audioData/VAD_Kaggle/Data/Annotation/Female/PTDB-TUG/mic_F01_si473.TextGrid,Female

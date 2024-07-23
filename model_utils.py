@@ -1,13 +1,16 @@
 import os
 from pydub import AudioSegment
 import joblib
+import pandas as pd
+import numpy as np
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC
 from sklearn.neighbors import KNeighborsClassifier
-#from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
 
 label_encoder = joblib.load('trained_models/speakerGender_KaggleVAD/label_encoder.pkl')
 scaler = joblib.load('trained_models/speakerGender_KaggleVAD/scaler.pkl')
@@ -112,5 +115,45 @@ class MLModelManager:
 
 
 
-def format_labels_gender(labels):
+class Dataset_MLModel:
+    """
+        Initializes the Dataset_MLModel object by reading a CSV file into a DataFrame.
+        
+        Parameters:
+            csv_file (str): The path to the CSV file to be read.
+            extract_features (function): The function used to extract features from the data.
+    """
+
+    def __init__(self, csv_file, feature_extractor):
+        self.df = pd.read_csv(csv_file)
+        self.feature_extractor = feature_extractor
+
+    def __len__(self):
+        return len(self.df)
+    
+    def get_features_and_labels(self):
+        """
+        Returns features and encoded labels based on the data in the DataFrame.
+        """
+        features = np.array([self.feature_extractor(file_path) for file_path in self.df['file_path']])
+        labels = self.df['label']
+        encoded_labels = label_encoder.transform(labels)
+        return features, encoded_labels
+    
+    def get_train_test_split(self, test_size=0.3):
+        """
+        Generate a train-test split of the features and labels.
+
+        Parameters:
+            test_size (float, optional): The proportion of the dataset to include in the test split. Defaults to 0.3.
+
+        Returns:
+            tuple: A tuple containing the train features, train labels, test features, and test labels.
+        """
+        features, labels = self.get_features_and_labels()
+        X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=test_size, random_state=42, shuffle=True)
+        X_train = scaler.transform(X_train)
+        X_test = scaler.transform(X_test)
+        return X_train, X_test, y_train, y_test
+
 
