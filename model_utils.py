@@ -124,12 +124,17 @@ class Dataset_MLModel:
         
         Parameters:
             csv_file (str): The path to the CSV file to be read.
-            extract_features (function): The function used to extract features from the data.
+            extract_features (dictionary): 
+            'feature_extractor_fn': The function used to extract features from the data.
+            'scaler': The presaved scaler path used to scale the features.
+            'label_encoder': The presaved label encoder path used to encode the labels.
     """
 
     def __init__(self, csv_file, feature_extractor):
         self.df = pd.read_csv(csv_file)
-        self.feature_extractor = feature_extractor
+        self.feature_extractor = feature_extractor['feature_extractor_fn']
+        self.scaler = feature_extractor['scaler']
+        self.label_encoder = feature_extractor['label_encoder']
 
     def __len__(self):
         return len(self.df)
@@ -138,9 +143,13 @@ class Dataset_MLModel:
         """
         Returns features and encoded labels based on the data in the DataFrame.
         """
-        features = np.array([self.feature_extractor(file_path) for file_path in self.df['file_path']])
+        features = np.array([self.feature_extractor(file_path) for file_path in self.df['audio_file']])
         labels = self.df['label']
-        encoded_labels = label_encoder.transform(labels)
+        if self.label_encoder is not None:
+            encoded_labels = self.label_encoder.transform(labels)
+        else:
+            self.label_encoder = LabelEncoder()
+            encoded_labels = self.label_encoder.fit_transform(labels)
         return features, encoded_labels
     
     def get_train_test_split(self, test_size=0.3):
@@ -155,8 +164,13 @@ class Dataset_MLModel:
         """
         features, labels = self.get_features_and_labels()
         X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=test_size, random_state=42, shuffle=True)
-        X_train = scaler.transform(X_train)
-        X_test = scaler.transform(X_test)
+        if self.scaler is not None:
+            X_train = scaler.transform(X_train)
+            X_test = scaler.transform(X_test)
+        else:
+            self.scaler = StandardScaler()
+            X_train = self.scaler.fit_transform(X_train)
+            X_test = self.scaler.transform(X_test)
         return X_train, X_test, y_train, y_test
 
 
