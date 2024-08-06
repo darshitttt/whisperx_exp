@@ -1,0 +1,4 @@
+sr: 32000
+n_fft: 512
+n_mfcc: 13
+n_mels: 64
