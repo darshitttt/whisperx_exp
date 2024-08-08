@@ -229,6 +229,7 @@ class Dataset_Regression_MLModel:
     def __init__(self, csv_file, feature_extractor = default_feature_extractor_dict):
         self.df = pd.read_csv(csv_file)
         self.feature_extractor = feature_extractor['feature_extractor_fn']
+        self.scaler = feature_extractor['scaler']
 
     
     def __len__(self):
@@ -245,6 +246,11 @@ class Dataset_Regression_MLModel:
             tuple: A tuple containing the train features, train labels, test features, and test labels.
         """
         features = np.array([self.feature_extractor(file_path) for file_path in self.df['audio_file']])
+        if self.scaler is not None:
+            features = self.scaler.transform(features)
+        else:
+            self.scaler = StandardScaler()
+            features = self.scaler.fit_transform(features)
         labels = np.array(self.df['age'])
 
         X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=test_size, random_state=42, shuffle=True)
